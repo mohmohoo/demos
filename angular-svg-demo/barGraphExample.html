@@ -1,0 +1,59 @@
+<html>
+    <head>
+        <script src="https://code.angularjs.org/1.4.8/angular.min.js" type="text/javascript">
+        </script>
+        <script type="text/javascript">
+            var dashboard = angular.module("Dashboard", []);
+
+            dashboard.controller("BarGraphController", function ($scope) {
+                $scope.specs = { 
+                    height: 30, 
+                    padding: 5,
+                    frontStyle: '10pt arial',
+                    bars: [ 
+                        { color: '#2A9FBC', width: 50, text: 'Sept' },
+                        { color: '#F15B2A', width: 60, text: 'Oct'},
+                        { color: '#A62E5C', width: 70, text: 'Nov' }
+                    ]};
+                
+                $scope.$watch('specs', function () {
+                    var ctx = document.createElement('canvas').getContext('2d');
+
+                    ctx.font = $scope.specs.frontStyle;
+
+                    $scope.specs.labelWidth = 0;
+                    $scope.specs.overallWidth = 0;
+
+                    angular.forEach($scope.specs.bars, (bar, index) => {
+                        $scope.specs.labelWidth = Math.max($scope.specs.labelWidth,ctx.measureText(bar.text).width);
+
+                        $scope.specs.overallWidth = Math.max($scope.specs.overallWidth, bar.width);
+                    });
+                    
+                    $scope.specs.overallHeight = $scope.specs.bars.length * (1 * $scope.specs.height + $scope.specs.padding);
+                }, true);
+
+                
+            })
+        </script>
+    </head>
+    <body ng-app="Dashboard">
+       <div ng-controller="BarGraphController">
+           <input type="text" ng-model="specs.height"></input>
+           <p></p>
+            <span>
+                <svg xmlns="http://www.w3.org/2000/svg" width="250" height="200">
+                    <g ng-repeat="bar in specs.bars">
+                        <text ng-attr-x="0" ng-attr-y="{{(1 * specs.height + specs.padding) * $index}}" text-anchor="start" style="font-family: arial; font-size: 10pt;">{{bar.text}}</text>
+
+                        <rect x="0" ng-attr-y="{{(1 * specs.height + specs.padding) * $index}}" ng-attr-fill="{{bar.color}}" ng-attr-width="{{bar.width}}"ng-attr-height="{{specs.height}}"></rect>
+                    </g>
+                    <line x1="0" y1="0" x2="0" ng-attr-y2="{{specs.overallHeight}}" style="stroke: black;stroke-width: 1px;"/>
+
+                    <line x1="0" ng-attr-y1="{{specs.overallHeight}}" ng-attr-x2="{{specs.overallWidth}}" ng-attr-y2="{{specs.overallHeight}}" style="stroke: black;stroke-width: 1px;"/>
+                    
+                </svg>
+            </span>
+       </div>
+    </body>
+</html>
